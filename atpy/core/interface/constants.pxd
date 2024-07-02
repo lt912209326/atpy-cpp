@@ -86,7 +86,8 @@ cdef extern from "physics/utils/cppconstants.h":
         LOCAL_NUX   ,LOCAL_NUY,
         S           ,GX         ,GY         ,GZ         ,THETAX     ,THETAY     ,
         THETAZ      ,DX         ,DY         ,DZ         ,ROTATE1    ,ROTATE2    ,
-        ROTATE3     ,AX         ,AY         ,
+        ROTATE3     ,AX         ,AY         ,WX1        ,WY1        ,WX2        ,
+        WY2         ,
         LOC_NUM
         
 

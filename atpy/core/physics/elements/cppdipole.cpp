@@ -8,8 +8,8 @@
 
 CppDipole::CppDipole():CppElement(){
     kind=DIPOLE;
-    keywords={L,ANGLE,K1,E1,E2,NSLICE};
-    values[L]=values[ANGLE]=values[K1]=values[E1]=values[E2]=0.0;
+    keywords={len,ANGLE,K1,E1,E2,NSLICE};
+    values[len]=values[ANGLE]=values[K1]=values[E1]=values[E2]=0.0;
     values[NSLICE]=nslice;
     reverse_mat=false;
     M66INV=nullptr;
@@ -20,9 +20,9 @@ CppDipole::CppDipole():CppElement(){
 
 CppDipole::CppDipole(string name,  double l, double angle, double k1,double e1,double e2, int nslice0):CppElement(name){
     kind=DIPOLE;
-    keywords={L,ANGLE,K1,E1,E2,NSLICE};
+    keywords={len,ANGLE,K1,E1,E2,NSLICE};
     // this->name=name;
-    values[L]=l;
+    values[len]=l;
     values[ANGLE]=angle;
     values[K1]=k1;
     values[E1]=e1;
@@ -40,10 +40,10 @@ CppDipole::CppDipole(string name,  double l, double angle, double k1,double e1,d
 int CppDipole::update_Matrix(const bool reverse, const double* cod , const Status* stat){
     
     double dp0=cod[5];
-    double len = values[L];
+    double len = values[len];
     double pnorm=1/(1+dp0);
     double angle=values[ANGLE];
-    double rhoinv=angle/values[L],Gx=rhoinv;
+    double rhoinv=angle/values[len],Gx=rhoinv;
     double Fx=(rhoinv*rhoinv+values[K1])*pnorm;
     double Fy=-values[K1]*pnorm;
 
@@ -189,11 +189,11 @@ int CppDipole::update_Matrix(const bool reverse, const double* cod , const Statu
 int CppDipole::linearoptics(const double* twsin, const double len_rate, const Status* stat,const bool reverse, double* twsout, double* glbout){
 
 
-    double len = len_rate*values[L];
+    double len = len_rate*values[len];
     double angle=values[ANGLE];
     double dp0=stat->dp0;
     double pnorm=1/(1.0+dp0 );
-    double rhoinv=angle/values[L],Gx=rhoinv;
+    double rhoinv=angle/values[len],Gx=rhoinv;
     double Fx=(rhoinv*rhoinv + values[K1])*pnorm;
     double Fy=-values[K1]*pnorm;
     double edge1=reverse ? angle*values[E2]: angle*values[E1] ;
@@ -382,10 +382,10 @@ int CppDipole::compute_TransferMatrix(const double* R66in,const bool reverse,dou
 int CppDipole::track(double* rin, const Status* stat, const bool reverse){
     double x=rin[0],px=rin[1],y=rin[2],py=rin[3],z=rin[4],dp=rin[5];
     
-    double len = values[L];
+    double len = values[len];
     double pnorm=1/(1+dp);
     double angle=values[ANGLE];
-    double rhoinv=angle/values[L],Gx=rhoinv;
+    double h=rhoinv=angle/values[len],Gx=rhoinv;
     double Fx=(rhoinv*rhoinv+values[K1])*pnorm;
     double Fy=-values[K1]*pnorm;
 
@@ -440,21 +440,44 @@ int CppDipole::track(double* rin, const Status* stat, const bool reverse){
         Sy=len;
     }
 
+
     // 扇形磁铁区域
+    double  x   = r[0];
+    double  xpr = r[1]*pnorm;
+    double  y   = r[2];
+    double  ypr = r[3]*pnorm;
+    double  delta = r[5];
+    double   ByError = 0.0;
     rin[0] =    Cx*x        + pnorm*Sx*px + pnorm*Gx*Dx*dp;
     rin[1] = -Fx*Sx/pnorm*x + Cx*px       + Gx*Sx*dp;
     rin[2] =    Cy*y        + pnorm*Sy*py;
     rin[3] = -Fy*Sy/pnorm*y + Cy*py;
     // rin[4] = ;
     // rin[5] = ;
+    /* from AT */
+    double M12 = Sx,  M21=-Fx*Sx, M34 = Sy,  M43=-Fy*Sy;
+
+    r[4]+= xpr*xpr*(len+Cx*M12)/4;
+    if (Fx==0.0) {
+        /* Do nothing */
+    }
+    else
+    {
+        double off_err = (delta*pnorm-ByError);
+        r[4]+= (len-Cx*M12)*(x*x*Fx+off_err*off_err*h*h/Fx
+                -2*x*h*off_err)/4;
+        r[4]+= M12*M21*( x*xpr - xpr*off_err*h/Fx)/2;
+        r[4]+= h*x*M12  +   xpr*(1-Cx)*h/Fx   +   off_err*(len-M12)*h*h/Fx;
+    }
+    r[4]+= ((len-Cy*M34)*y*y*G2 + ypr*ypr*(len+Cy*M34))/4;
+    r[4]+= M34*M43*x*xpr/2;
+
 
     if (0.0!=edge2) {
         tge2=tan(edge2);  
         rin[1]+= rhoinv*tge2*rin[0];
         rin[3]-= rhoinv*tge2*rin[2];
     }
-
-
     // rin[0]=x; rin[1]=xp; rin[2]=y; rin[3]=yp; rin[4]=z; rin[5]=dp;
     return 0;
 }

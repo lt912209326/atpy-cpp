@@ -4,6 +4,10 @@ import re
 from .interface.constants import rcParams
 # from constants import  KWD_INDEX, INDEX_KWD, TWS_INDEX, LOC_INDEX, GLB_INDEX, ELEM_INDEX, DEFAULT_ELEM_KARGS
 
+# export_hash ={
+#     "elegant":{L:"L", ANGLE:"ANGLE", K1:"K1", K2:"K2",K3:"K3", E1:"e1", E2:"e2",NSLICE:"N_SLICES" },
+
+# }
 
 
 def generate_tuners(ring, names):

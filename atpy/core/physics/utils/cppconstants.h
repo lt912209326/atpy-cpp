@@ -1,4 +1,4 @@
-﻿
+
 #ifndef _CPPCONSTANT_H_
 #define _CPPCONSTANT_H_
 /* 
@@ -7,7 +7,7 @@ macro                               :   ABC_NAME()
 const and enum member               :   k_Keywords_Name
 class and struct                    :   AbcName
 general and class public  method    :   abc_name()
-class private and protect method    :   _abs_name()
+class private and protect method    :   _abc_name()
 class public member                 :   abc_name
 class private and protect member    :   _abc_name
 */
@@ -248,7 +248,8 @@ enum LocalToken: uint16_t
     LOCAL_NUX   ,LOCAL_NUY,
     S           ,GX         ,GY         ,GZ         ,THETAX     ,THETAY     ,
     THETAZ      ,DX         ,DY         ,DZ         ,ROTATE1    ,ROTATE2    ,
-    ROTATE3     ,AX         ,AY         ,
+    ROTATE3     ,AX         ,AY         ,WX1        ,WY1        ,WX2        ,
+    WY2         ,
     LOC_NUM
 };
 
@@ -271,7 +272,7 @@ const map<int,string> LOCAL_DICT=   {{R11, "R11"}, {R12, "R12"}, {R13, "R13"}, {
                                     {LOCAL_NUX, "local_nux"}, {LOCAL_NUY, "local_nuy"},
                                     {S, "s"},  {GX, "Gx"},  {GY, "Gy"},  {GZ, "Gz"},  {THETAX, "thetax"},  {THETAY, "thetay"},
                                     {THETAZ, "thetaz"},  {DX, "Dx"},  {DY, "Dy"},  {DZ, "Dz"},  {ROTATE1, "rotate1"},  {ROTATE2, "rotate2"},
-                                    {ROTATE3, "rotate3"},  {AX, "Ax"},  {AY, "Ay"},
+                                    {ROTATE3, "rotate3"},  {AX, "Ax"},  {AY, "Ay"}, {WX1, "Wx1"},  {WY1, "Wy1"}, {WX2, "Wx2"},  {WY2, "Wy2"},
                                     // {LOC_NUM,"loc_num"} 
                                     };
 //#   GLOBAL PARAMETER CODE           #

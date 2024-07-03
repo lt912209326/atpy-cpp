@@ -34,7 +34,7 @@ int CppDrift::track(double* rin, const Status* stat, const bool reverse){
     // rin[0]+=length*rin[1]/sqrt(sqr(1/pnorm)-sqr(px)-sqr(py));
     // rin[2]+=length*rin[3]/sqrt(sqr(1/pnorm)-sqr(px)-sqr(py));
     // rin[4]+=length*pnorm*0.5*(rin[1]*rin[1]+rin[3]*rin[3]);
-    rin[4]+=(1+rin[5])*Lpnorm - length;
+    rin[4]-=(1+rin[5])*Lpnorm - length;
     return 0;
 
 }

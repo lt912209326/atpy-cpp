@@ -7,8 +7,8 @@
 
 CppQuadrupole::CppQuadrupole():CppElement(){
     kind=QUADRUPOLE;
-    keywords={len,K1,NSLICE};
-    values[len]=0;
+    keywords={L,K1,NSLICE};
+    values[L]=0;
     values[K1]=0;
     values[NSLICE]=nslice;
 }
@@ -16,9 +16,9 @@ CppQuadrupole::CppQuadrupole():CppElement(){
 
 CppQuadrupole::CppQuadrupole(std::string name,double l, double k1, int nslice0):CppElement(name){
     kind=QUADRUPOLE;
-    keywords={len,K1,NSLICE};
+    keywords={L,K1,NSLICE};
     // this->name=name;
-    values[len]=l;
+    values[L]=l;
     values[K1]=k1;
     nslice=nslice0;
     values[NSLICE]=nslice;
@@ -30,7 +30,7 @@ CppQuadrupole::CppQuadrupole(std::string name,double l, double k1, int nslice0):
 int CppQuadrupole::update_Matrix(const bool reverse, const double* cod , const Status* stat){
     double dp0=cod[5];
     double pnorm=1/(1+dp0);
-    double len = values[len];
+    double len = values[L];
     double Fx=values[K1]/(1+dp0);
     double Fy=-Fx;
     double kx,ky,Cx,Sx,Cy,Sy;
@@ -73,7 +73,7 @@ int CppQuadrupole::update_Matrix(const bool reverse, const double* cod , const S
 
 
 int CppQuadrupole::linearoptics(const double* twsin, const double len_rate, const Status* stat,const bool reverse, double* twsout, double* glbout){
-    double len = len_rate*values[len];
+    double len = len_rate*values[L];
     double Gx=0;
     double dp0=stat->dp0;
     double Fx=values[K1]/(1+dp0);
@@ -152,7 +152,7 @@ int CppQuadrupole::track(double* rin, const Status* stat, const bool reverse){
     
     double x=rin[0],px=rin[1],y=rin[2],py=rin[3],z=rin[4],dp=rin[5];
     double pnorm=1/(1+dp);
-    double len = values[len];
+    double len = values[L];
     double Fx=values[K1]/(1+dp);
     double Fy=-Fx;
     double kx,ky,Cx,Sx,Cy,Sy;
@@ -181,11 +181,9 @@ int CppQuadrupole::track(double* rin, const Status* stat, const bool reverse){
         Sy=len; 
     }
     
-    double  x   = r[0];
-    double  xpr = r[1]*pnorm;
-    double  y   = r[2];
-    double  ypr = r[3]*pnorm;
-    double  delta = r[5];
+    double  xpr = rin[1]*pnorm;
+    double  ypr = rin[3]*pnorm;
+    double  delta = rin[5];
 
     rin[0] =    Cx*x        + pnorm*Sx*px ;
     rin[1] = -Fx*Sx/pnorm*x + Cx*px       ;
@@ -194,9 +192,9 @@ int CppQuadrupole::track(double* rin, const Status* stat, const bool reverse){
     
     double M12 = Sx,  M21=-Fx*Sx, M34 = Sy,  M43=-Fy*Sy;
 
-    r[5]+= g*(x*x*(len-Cx*M12)-y*y*(len-Cy*M34))/4;
-    r[5]+= (xpr*xpr*(len+Cx*M12)+ypr*ypr*(len+Cy*M34))/4;
-    r[5]+= (x*xpr*M12*M21 + y*ypr*M34*M43)/2;
+    rin[4]-= abs(Fx)*(x*x*(len-Cx*M12)-y*y*(len-Cy*M34))/4;
+    rin[4]-= (xpr*xpr*(len+Cx*M12)+ypr*ypr*(len+Cy*M34))/4;
+    rin[4]-= (x*xpr*M12*M21 + y*ypr*M34*M43)/2;
     return 0;
 }
 

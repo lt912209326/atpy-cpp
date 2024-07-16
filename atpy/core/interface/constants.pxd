@@ -111,7 +111,9 @@ cdef extern from "physics/utils/cppconstants.h":
         H22000,     H11110,        H00220,
         H31000,        H40000,         H20110,        H11200,       H20020,        H20200,
         H00310,         H00400,                DA    ,     DA_SIGMA ,
-        DETAX ,         DETAPX,        DBETAX,        DBETAY,       DALPHAX,        DALPHAY,       DDETAX,     DDBETAX,    DDBETAY,    WX,      WY,  
+        DETAX ,         DETAPX,        DBETAX,        DBETAY,       DALPHAX,        DALPHAY,       
+        # DDETAX,     DDBETAX,    DDBETAY,    
+        WX,      WY,  
         LOW_QX             ,LOW_QY,            HIGH_QX             ,HIGH_QY,        SUM_SQR_QX,     SUM_SQR_QY,
         INV_TAU,
         GLB_NUM

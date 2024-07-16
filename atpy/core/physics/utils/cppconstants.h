@@ -295,7 +295,8 @@ enum GlobalToken: uint16_t
     H31000,        H40000,         H20110,        H11200,       H20020,        H20200,
     H00310,         H00400,                DA    ,     DA_SIGMA ,
     DETAX ,         DETAPX,        DBETAX,        DBETAY,       DALPHAX,        DALPHAY,       
-    DDETAX,     DDBETAX,    DDBETAY,    WX,      WY,  
+    // DDETAX,     DDBETAX,    DDBETAY,    
+    WX,      WY,  
     LOW_QX             ,LOW_QY,            HIGH_QX             ,HIGH_QY,        SUM_SQR_QX,     SUM_SQR_QY,
     INV_TAU,
     GLB_NUM
@@ -317,7 +318,8 @@ const map<int,string> GLOBALS_DICT= {{MASS0,"mass0"},{GAMMA,"gamma"},{ENERGY,"en
                         {H31000,"H31000"}, {H40000,"H40000"}, {H20110,"H20110"},   {H11200,"H11200"}, {H20020,"H20020"}, {H20200,"H20200"},
                         {H00310,"H00310"}, {H00400,"H00400"}, {DA, "DA"}, {DA_SIGMA, "DA_SIGMA"},
                         {DETAX, "detax"} , {DETAPX, "detapx"}, {DBETAX, "dbetax"}, {DBETAY, "dbetay"}, {DALPHAX, "dalphax"}, {DALPHAY, "dalphay"}, 
-                        {DDETAX, "ddetax"}, {DDBETAX, "ddbetax"}, {DDBETAY, "ddbetay"}, {WX, "Wx"}, {WY, "Wy"}, 
+                        // {DDETAX, "ddetax"}, {DDBETAX, "ddbetax"}, {DDBETAY, "ddbetay"}, 
+                        {WX, "Wx"}, {WY, "Wy"}, 
                         {LOW_QX, "low_Qx"}  ,{LOW_QY, "low_Qy"},  {HIGH_QX, "high_Qx"}  ,{HIGH_QY, "high_Qy"}, 
                         {SUM_SQR_QX, "sum_sqr_Qx"},     {SUM_SQR_QY, "sum_sqr_Qy"}, {INV_TAU, "inv_tau"},
                         // { GLB_NUM, "glb_num"} 

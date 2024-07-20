@@ -278,6 +278,7 @@ cdef class BeamLine:
             string name
             double value=0,summary=0,cell=0
             Constraints* pconstraint=&lat.constraints
+            double *tmp_ptr = NULL 
         # print("_update_constraints")
         computeRDTs = lat.stat.computedrivingterms
         lat.stat.computedrivingterms=False
@@ -307,6 +308,8 @@ cdef class BeamLine:
                 lat.compute_large_off_momentum_tunes(lat.stat.monitor_dp)
             if lat.constraints.time_consuming_terms[OFF_MOMENTUM_SUM_TERMS ] :
                 lat.compute_off_momentum_sum_square(lat.stat.monitor_dp)
+            if lat.constraints.time_consuming_terms[DA_TRACKING_TERMS ] :
+                lat.get_DA_area( tmp_ptr )
             #更新ID表和约束
             lat.TwissPropagate()
             for name in lat.id_table.id_table:
@@ -326,6 +329,7 @@ cdef class BeamLine:
             size_t i
             double value=0,summary=0
             Optima* poptima=&lat.optima
+            double *tmp_ptr = NULL 
         # print("_update_optima")
 
         computeRDTs = lat.stat.computedrivingterms
@@ -347,6 +351,8 @@ cdef class BeamLine:
                 lat.compute_large_off_momentum_tunes(lat.stat.monitor_dp)
             if poptima.time_consuming_terms[OFF_MOMENTUM_SUM_TERMS ] and not lat.constraints.time_consuming_terms[OFF_MOMENTUM_SUM_TERMS ] :
                 lat.compute_off_momentum_sum_square(lat.stat.monitor_dp)
+            if poptima.time_consuming_terms[DA_TRACKING_TERMS ] and not lat.constraints.time_consuming_terms[DA_TRACKING_TERMS ] :
+                lat.get_DA_area( tmp_ptr )
 
 
         for i in range(poptima.num_optima):

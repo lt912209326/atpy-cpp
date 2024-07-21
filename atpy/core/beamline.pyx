@@ -64,8 +64,6 @@ cdef class BeamLine:
             if self.pyline.expand[0].name !="START":
                 self.pyline.expand.insert(0,Marker("START") )
                 self.pyline.reverse.insert(0, False)
-                (<Element?>self.pyline.expand[0]).eids=[0]
-                self.elems_index["START"]=[0]
             length0=len(self.pyline.expand)-1
             self.lat=new CppBeamLine(name, self.stat.stat.particle, self.stat.stat.energy,length0,self.stat.stat)
             # self.elems_index["START"]=[0]
@@ -84,9 +82,6 @@ cdef class BeamLine:
         for index,value in enumerate(self.pyline.expand ):
             # 在CppBeamLine中有默认起始Marker元素 "START"
             position=index
-            if index==0: continue
-            # print(index," __cinit__:0",value.name)
-            # self.lat.append(value.elem ,self.pyline.reverse[index ] )
             if value.name not in self.elems_index.keys():
                 (<Element?>value).eids=[position]
                 self.elems_index[value.name] = [position ]
@@ -110,6 +105,7 @@ cdef class BeamLine:
         cdef size_t index,position
         cdef Parser parser=Parser(self.elems_index )
         for index,value in enumerate(self.pyline.expand ):
+            # 在CppBeamLine中有默认起始Marker元素 "START"
             if index==0: continue
             lat.append(value.elem ,self.pyline.reverse[index ] )
         parser._set_database(lat )

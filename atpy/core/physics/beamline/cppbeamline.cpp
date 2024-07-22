@@ -1601,8 +1601,6 @@ int CppBeamLine::computeSecondOrderChromaticities(const double dp){
 
 }
 
-
-
 int CppBeamLine::track(double* beams, size_t nbegin, size_t nend, size_t nturn_begin, size_t nturn_end ){
     size_t nturn0=nturn_begin, nturn1=nturn_end;
     size_t stat_no=0, first_end_pos=length;
@@ -1632,7 +1630,10 @@ int CppBeamLine::track(double* beams, size_t nbegin, size_t nend, size_t nturn_b
         }
         for(j=nbegin;j<first_end_pos+1;j++){
             line[j]->track(beams,&stat);
-            if(beams[LOSS]) break;
+            if(beams[LOSS]){
+                beams[LOSSPOS] = j;
+                break;
+            }
         }
         if(beams[LOSS]){
             beams[LOSSTURN]=nturn_begin;
@@ -1650,6 +1651,7 @@ int CppBeamLine::track(double* beams, size_t nbegin, size_t nend, size_t nturn_b
                 else{
                     beams[LOSSTURN]=k;
                 }
+                beams[LOSSPOS] = j;
                 return 0;
             }
         }
@@ -1665,6 +1667,7 @@ int CppBeamLine::track(double* beams, size_t nbegin, size_t nend, size_t nturn_b
                 line[j]->track(beams,&stat);
                 if(beams[LOSS]){
                     beams[LOSSTURN]=nturn_end;
+                    beams[LOSSPOS] = j;
                     return 0;
                 }
             }
@@ -1673,6 +1676,7 @@ int CppBeamLine::track(double* beams, size_t nbegin, size_t nend, size_t nturn_b
             break;
     }
     beams[LOSSTURN]=nturn_end+1;
+    beams[LOSSPOS] = -1;
     return 0;
 }
 

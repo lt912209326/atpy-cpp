@@ -83,3 +83,7 @@ def export_vars(ring,file_type="atpy"):
     vars_elem = [elem.str(file_type) for name,elem in ordered_elems ]
     for elem in vars_elem:print(elem,end="")
     return vars_elem
+
+def twiss2dict(RING, name="END", terms=["betax","alphax","betay","alphay", "etax","etapx" ] ):
+    index,datas = RING[name, terms]
+    return { term:data for term,data in zip(terms,datas) }

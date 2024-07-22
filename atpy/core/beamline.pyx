@@ -246,7 +246,7 @@ cdef class BeamLine:
     def _save(self):
         """
         internal funcction
-        """"
+        """
         cdef:
             CppBeamLine* lat=NULL
             bytes name

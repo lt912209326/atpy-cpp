@@ -437,7 +437,7 @@ cdef class BeamLine:
             objectives: 1-d array L elements corresponing to the CONSTRAINT of parser 
         """
         cdef:
-            int i,i_cv_best,i_objv_best, num_variables= X.shape[1]
+            int i,i_cv_best,i_objv_best, num_variables= X.shape[0]
             double cv_tmp,value,objv_value
             CppBeamLine* lat=NULL
         lat=self.lat

@@ -621,6 +621,7 @@ cdef class BeamLine:
                 value=lat.id_table.id_dict[name].value
                 print(f"{index:<4}:{name.decode('utf8'):25}{value:>30.e6}")
             print(60*"=")
+        
         elif token=="VAR":
             num_indep_vars=lat.vars.num_independent_vars
             num_dep_vars=lat.vars.num_dependent_vars
@@ -630,7 +631,8 @@ cdef class BeamLine:
                 name=lat.vars.ordered_independ_var_names[index]
                 lb=(<Var*>lat.vars.independent_vars[name]).lb
                 ub=(<Var*>lat.vars.independent_vars[name]).ub
-                print(f"{index:<4}:{name.decode('utf8'):25}{lb:15.6}{ub:15.6}")
+                step=(<Var*>lat.vars.independent_vars[name]).step 
+                print(f"{index:<4}:NAME={name.decode('utf8'):25}, LOWER={lb:13.6}, UPPER={ub:13.6}, STEP={step:13.6};")
             for index in range(num_dep_vars):
                 name=lat.vars.ordered_depend_var_names[index]
                 print(f"{index+num_indep_vars:<4}:{name.decode('utf8'):36}{'CoVar':20}")

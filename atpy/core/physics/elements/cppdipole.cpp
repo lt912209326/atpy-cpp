@@ -20,7 +20,7 @@ CppDipole::CppDipole():CppElement(){
 
 CppDipole::CppDipole(string name,  double l, double angle, double k1,double e1,double e2, int nslice0):CppElement(name){
     kind=DIPOLE;
-    keywords={L,ANGLE,K1,E1,E2,NSLICE};
+    keywords={L, ANGLE,K1,E1,E2,NSLICE};
     // this->name=name;
     values[L]=l;
     values[ANGLE]=angle;
@@ -385,7 +385,7 @@ int CppDipole::track(double* rin, const Status* stat, const bool reverse){
     double len = values[L];
     double pnorm=1/(1+dp);
     double angle=values[ANGLE];
-    double rhoinv=angle/values[L],Gx=rhoinv;
+    double rhoinv=angle/values[L],h=rhoinv,Gx=rhoinv;
     double Fx=(rhoinv*rhoinv+values[K1])*pnorm;
     double Fy=-values[K1]*pnorm;
 
@@ -440,21 +440,42 @@ int CppDipole::track(double* rin, const Status* stat, const bool reverse){
         Sy=len;
     }
 
+
     // 扇形磁铁区域
+    double  xpr = rin[1]*pnorm;
+    double  ypr = rin[3]*pnorm;
+    double  delta = rin[5];
+    double   ByError = 0.0;
     rin[0] =    Cx*x        + pnorm*Sx*px + pnorm*Gx*Dx*dp;
     rin[1] = -Fx*Sx/pnorm*x + Cx*px       + Gx*Sx*dp;
     rin[2] =    Cy*y        + pnorm*Sy*py;
     rin[3] = -Fy*Sy/pnorm*y + Cy*py;
     // rin[4] = ;
     // rin[5] = ;
+    /* from AT */
+    double M12 = Sx,  M21=-Fx*Sx, M34 = Sy,  M43=-Fy*Sy;
+
+    rin[4]-= xpr*xpr*(len+Cx*M12)/4;
+    if (Fx==0.0) {
+        /* Do nothing */
+    }
+    else
+    {
+        double off_err = (delta*pnorm-ByError);
+        rin[4]-= (len-Cx*M12)*(x*x*Fx+off_err*off_err*h*h/Fx
+                -2*x*h*off_err)/4;
+        rin[4]-= M12*M21*( x*xpr - xpr*off_err*h/Fx)/2;
+        rin[4]-= h*x*M12  +   xpr*(1-Cx)*h/Fx   +   off_err*(len-M12)*h*h/Fx;
+    }
+    rin[4]-= ((len-Cy*M34)*y*y*Fy + ypr*ypr*(len+Cy*M34))/4;
+    rin[4]-= M34*M43*x*xpr/2;
+
 
     if (0.0!=edge2) {
         tge2=tan(edge2);  
         rin[1]+= rhoinv*tge2*rin[0];
         rin[3]-= rhoinv*tge2*rin[2];
     }
-
-
     // rin[0]=x; rin[1]=xp; rin[2]=y; rin[3]=yp; rin[4]=z; rin[5]=dp;
     return 0;
 }

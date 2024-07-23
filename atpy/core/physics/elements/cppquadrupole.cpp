@@ -181,10 +181,20 @@ int CppQuadrupole::track(double* rin, const Status* stat, const bool reverse){
         Sy=len; 
     }
     
+    double  xpr = rin[1]*pnorm;
+    double  ypr = rin[3]*pnorm;
+    double  delta = rin[5];
+
     rin[0] =    Cx*x        + pnorm*Sx*px ;
     rin[1] = -Fx*Sx/pnorm*x + Cx*px       ;
     rin[2] =    Cy*y        + pnorm*Sy*py;
     rin[3] = -Fy*Sy/pnorm*y + Cy*py;
+    
+    double M12 = Sx,  M21=-Fx*Sx, M34 = Sy,  M43=-Fy*Sy;
+
+    rin[4]-= abs(Fx)*(x*x*(len-Cx*M12)-y*y*(len-Cy*M34))/4;
+    rin[4]-= (xpr*xpr*(len+Cx*M12)+ypr*ypr*(len+Cy*M34))/4;
+    rin[4]-= (x*xpr*M12*M21 + y*ypr*M34*M43)/2;
     return 0;
 }
 

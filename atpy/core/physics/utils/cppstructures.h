@@ -67,13 +67,13 @@ const Status STAT0={
                     //  totalslice ,multipoleslice ,Trx ,Try ,dp0 ,
                      0, 0, 10, 10, 0, 
                     //  dp ,expand ,particle ,energy ,second_order_chrom ,
-                     0, false,ELECTRON,2E9,false,
+                      4e-4, false,ELECTRON,2E9,false,
                     //  third_order_chrom ,nperiods ,printout ,transfermatrix ,mincouple ,
                      false,1,false,true,0.005,
                     //  track_lines ,track_turns ,monitor_dp, larger_monitor_dp ,fast_2nd_order_RDTs
                      13,100,0.01,true,1.0, false,
                     //  max_betax, max_etax, NP, rf_dp, rdt_fluctuation, local_twiss, off_momentum_rdts, off_rdts_observer, max_da_range 
-                    0,0,50000000000, 0.02, false, false, false, 0.01, 50, -1
+                    1e-6,1e-6,50000000000, 0.02, false, false, false, 0.01, 50, -1
 };
 
 /*

@@ -1,4 +1,4 @@
-﻿
+
 #ifndef _CPPCONSTANT_H_
 #define _CPPCONSTANT_H_
 /* 
@@ -7,7 +7,7 @@ macro                               :   ABC_NAME()
 const and enum member               :   k_Keywords_Name
 class and struct                    :   AbcName
 general and class public  method    :   abc_name()
-class private and protect method    :   _abs_name()
+class private and protect method    :   _abc_name()
 class public member                 :   abc_name
 class private and protect member    :   _abc_name
 */
@@ -248,7 +248,8 @@ enum LocalToken: uint16_t
     LOCAL_NUX   ,LOCAL_NUY,
     S           ,GX         ,GY         ,GZ         ,THETAX     ,THETAY     ,
     THETAZ      ,DX         ,DY         ,DZ         ,ROTATE1    ,ROTATE2    ,
-    ROTATE3     ,AX         ,AY         ,
+    ROTATE3     ,AX         ,AY         ,WX1        ,WY1        ,WX2        ,
+    WY2         ,
     LOC_NUM
 };
 
@@ -271,7 +272,7 @@ const map<int,string> LOCAL_DICT=   {{R11, "R11"}, {R12, "R12"}, {R13, "R13"}, {
                                     {LOCAL_NUX, "local_nux"}, {LOCAL_NUY, "local_nuy"},
                                     {S, "s"},  {GX, "Gx"},  {GY, "Gy"},  {GZ, "Gz"},  {THETAX, "thetax"},  {THETAY, "thetay"},
                                     {THETAZ, "thetaz"},  {DX, "Dx"},  {DY, "Dy"},  {DZ, "Dz"},  {ROTATE1, "rotate1"},  {ROTATE2, "rotate2"},
-                                    {ROTATE3, "rotate3"},  {AX, "Ax"},  {AY, "Ay"},
+                                    {ROTATE3, "rotate3"},  {AX, "Ax"},  {AY, "Ay"}, {WX1, "Wx1"},  {WY1, "Wy1"}, {WX2, "Wx2"},  {WY2, "Wy2"},
                                     // {LOC_NUM,"loc_num"} 
                                     };
 //#   GLOBAL PARAMETER CODE           #
@@ -294,7 +295,8 @@ enum GlobalToken: uint16_t
     H31000,        H40000,         H20110,        H11200,       H20020,        H20200,
     H00310,         H00400,                DA    ,     DA_SIGMA ,
     DETAX ,         DETAPX,        DBETAX,        DBETAY,       DALPHAX,        DALPHAY,       
-    DDETAX,     DDBETAX,    DDBETAY,    WX,      WY,  
+    // DDETAX,     DDBETAX,    DDBETAY,    
+    WX,      WY,  
     LOW_QX             ,LOW_QY,            HIGH_QX             ,HIGH_QY,        SUM_SQR_QX,     SUM_SQR_QY,
     INV_TAU,
     GLB_NUM
@@ -316,7 +318,8 @@ const map<int,string> GLOBALS_DICT= {{MASS0,"mass0"},{GAMMA,"gamma"},{ENERGY,"en
                         {H31000,"H31000"}, {H40000,"H40000"}, {H20110,"H20110"},   {H11200,"H11200"}, {H20020,"H20020"}, {H20200,"H20200"},
                         {H00310,"H00310"}, {H00400,"H00400"}, {DA, "DA"}, {DA_SIGMA, "DA_SIGMA"},
                         {DETAX, "detax"} , {DETAPX, "detapx"}, {DBETAX, "dbetax"}, {DBETAY, "dbetay"}, {DALPHAX, "dalphax"}, {DALPHAY, "dalphay"}, 
-                        {DDETAX, "ddetax"}, {DDBETAX, "ddbetax"}, {DDBETAY, "ddbetay"}, {WX, "Wx"}, {WY, "Wy"}, 
+                        // {DDETAX, "ddetax"}, {DDBETAX, "ddbetax"}, {DDBETAY, "ddbetay"}, 
+                        {WX, "Wx"}, {WY, "Wy"}, 
                         {LOW_QX, "low_Qx"}  ,{LOW_QY, "low_Qy"},  {HIGH_QX, "high_Qx"}  ,{HIGH_QY, "high_Qy"}, 
                         {SUM_SQR_QX, "sum_sqr_Qx"},     {SUM_SQR_QY, "sum_sqr_Qy"}, {INV_TAU, "inv_tau"},
                         // { GLB_NUM, "glb_num"} 

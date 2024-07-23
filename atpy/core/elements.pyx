@@ -4,6 +4,10 @@ import re
 from .interface.constants import rcParams
 # from constants import  KWD_INDEX, INDEX_KWD, TWS_INDEX, LOC_INDEX, GLB_INDEX, ELEM_INDEX, DEFAULT_ELEM_KARGS
 
+# export_hash ={
+#     "elegant":{L:"L", ANGLE:"ANGLE", K1:"K1", K2:"K2",K3:"K3", E1:"e1", E2:"e2",NSLICE:"N_SLICES" },
+
+# }
 
 
 def generate_tuners(ring, names):
@@ -53,6 +57,8 @@ cdef class Line:
         # lines=args[::-1] if reverse else args
         for index,arg in enumerate(args):
             if isinstance(arg,Element):
+                if arg.name in ("START","END") and (index != 0 and index != len(args)-1): 
+                    raise ValueError(f"START and END are reserved for the first and last Marker element, but {index}-th used the {arg.name}!")
                 # self.unit_cell.append(arg)
                 self.line.append(arg)
                 self.elems[arg.name]=arg
@@ -60,6 +66,8 @@ cdef class Line:
                 self.expand.append(arg)
                 self.reverse.append(False)
             elif isinstance(arg,Line):
+                # when a line is used by BeamLine, START and END will be inserted. to reuse the line, delete these two Elements
+                arg.renew()
                 self.elems={**self.elems,**arg.elems}
                 self.ordered_lines+=arg.ordered_lines
                 self.line.append(arg )
@@ -75,11 +83,24 @@ cdef class Line:
         self.ordered_lines.append(self)
         
 
+    def renew(self):
+        """
+        remove the START and END Marker inserted by BeamLine
+        """
+        if self.expand[0].name == "START": 
+            self.expand.pop(0)
+            self.reverse.pop(0)
+        if self.expand[-1].name == "END": 
+            self.expand.pop(-1)
+            self.reverse.pop(-1)
+
+    
     def __rmul__(self,int other):
     
         cdef Line newline=Line.__new__(self.__class__ )
         cdef list reverse,expand
         newline.name=f"{other}*{self.name}"
+        self.renew()
         if other<0:
             reverse=-other*[not value for value in self.reverse[::-1] ]
             expand=-other*self.expand[::-1]
@@ -106,6 +127,7 @@ cdef class Line:
     def __neg__(self):
         cdef Line newline=Line.__new__(self.__class__ )
         newline.name=f"-{self.name}"
+        self.renew()
         newline.reverse=[not value for value in self.reverse[::-1] ]
         newline.expand =self.expand[::-1]
         newline.ordered_lines=self.ordered_lines

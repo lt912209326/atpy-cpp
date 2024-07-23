@@ -6,7 +6,7 @@ cdef extern from "../utils/cppast.h"nogil:
     cdef enum:
         ADD,    SUB,    MUL,    DIV,    POW,    MOD,    FLOOR,
         ABS,       SQRT,       SIN,    COS,    SINH,   COSH, 
-        EXP,       DIM,       MAX,       MIN,
+        EXP,       DIM,       MAX,       MIN,       MAXABS,       MINABS, SUM,
         NUMBER,    PROPERTY,    ID,     REFER,
         DOT,       SLICE,       COMMA,
         DELAY,   ASSIGN,      

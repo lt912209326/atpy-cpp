@@ -2,7 +2,7 @@ import re
 import warnings
 
 value2enum={"+":ADD, "-": SUB, "*": MUL, "/":DIV, "**":POW, "%":MOD, "//":FLOOR,
-            "ABS":ABS, "SQRT":SQRT, "DIM":DIM, "MAX":MAX, "MIN":MIN, 
+            "ABS":ABS, "SQRT":SQRT, "DIM":DIM, "MAX":MAX, "MIN":MIN,  "MAXABS":MAXABS, "MINABS":MINABS, 
             "NUMBER":NUMBER, "TWS":TWS, "KWD":KWD, "LOC":LOC, "GLB":GLB,
             "DELAY":DELAY
              }
@@ -106,7 +106,7 @@ cdef class Parser:  # 定义语法分析器的类
         node =NULL
         self.eat("(")
 
-        if func in ("MIN", "MAX"):
+        if func in ("MIN", "MAX", "MINABS", "MAXABS"):
             for i in range(2):
                 position=self.position()
                 positions.append( position )

@@ -13,19 +13,6 @@
 
 
 
-// int SIGN(double x){
-//     if (x==0){
-//         return 0;
-//     }
-//     else if(x>0)
-//     {
-//         return 1;
-//     }
-//     else
-//     {
-//         return -1;
-//     }
-// };
 
 // 只适合周期结构中对称右半部分、且仅仅dnux_dJx, dnux_nJy, dnuy_dJx完成，其他的还需继续
 
@@ -87,21 +74,14 @@ void computmdrivingTerms_nonperiod(vector<CppComponent*>& bline, vector<Multipol
 
 
     int comp_pos_index=-1, comp_pos=bline[mult_pos[0] ]->position, slice_pos=-1,nslice=bline[mult_pos[0] ]->elem->nslice, sext_slice_cnt=0 ;
-    for(int i=0;i<multipole_slice;i++)
+    for(size_t i=0;i<multipole_slice;i++)
     {
-        
-        if(stat.printout )cout<<"0 slice_i : "<<i<<endl;
         if(!(slice_pos<nslice)|| comp_pos_index<0 ){
             // 切片计数大于等于元件切片数或开始时，组件元素更换
             comp_pos_index+=1;
-            if(stat.printout )cout<<"0.1 slice_i : "<<i<<endl;
-            if(stat.printout )cout<<"0.1 slice_i : "<<comp_pos_index<<endl;
-            if(stat.printout )cout<<"0.1 slice_i : "<<mult_pos[comp_pos_index ]<<endl;
             comp_pos = bline[mult_pos[comp_pos_index ] ]->position;
-            if(stat.printout )cout<<"0.2 slice_i : "<<i<<endl;
             nslice=bline[mult_pos[comp_pos_index ] ]->elem->nslice;
             slice_pos=0;
-            if(stat.printout )cout<<"0.3 slice_i : "<<i<<endl;
             if(stat.nonlineartermonly){
                 bline[comp_pos-1]->tws(-1,CHROMX)=dQx;
                 bline[comp_pos-1]->tws(-1,CHROMY)=dQy;
@@ -111,9 +91,7 @@ void computmdrivingTerms_nonperiod(vector<CppComponent*>& bline, vector<Multipol
             }
 
             a2L = b2L = b3L = b4L = 0;
-        if(stat.printout )cout<<"0.4 slice_i : "<<i<<endl;
             elem=bline[comp_pos]->elem;
-        if(stat.printout )cout<<"0.5 slice_i : "<<i<<endl;
             switch (elem->kind) 
             {
             case SEXTUPOLE:
@@ -132,13 +110,11 @@ void computmdrivingTerms_nonperiod(vector<CppComponent*>& bline, vector<Multipol
                 break;
             }      
         }
-        if(stat.printout )cout<<"1 slice_i : "<<i<<endl;
         if(SEXTUPOLE==elem->kind){
             sext_slice_index[sext_slice_cnt]=i;
             sext_slice_cnt+=1;
         }
         
-        if(stat.printout )cout<<"2 slice_i : "<<i<<endl;
         if (a2L || b2L || b3L || b4L) {
             if (i>0 && slice_pos>0) {
                 betax1 = (bline[comp_pos]->tws(slice_pos,BETAX)  + bline[comp_pos]->tws(slice_pos-1,BETAX) )/2;
@@ -244,7 +220,6 @@ void computmdrivingTerms_nonperiod(vector<CppComponent*>& bline, vector<Multipol
             md[i].b2L = b2L;
             md[i].b3L = b3L;
         }
-        if(stat.printout )cout<<"3 slice_i : "<<i<<endl;
         // LOC[i][LH11001]=h11001.real();
         // LOC[i][LH00111]=h00111.real();
         // LOC[i][LH11001]=LOC[i-1][LH11001]+LOC[i][CHROMX];
@@ -262,7 +237,6 @@ void computmdrivingTerms_nonperiod(vector<CppComponent*>& bline, vector<Multipol
             // elem = elem->succ;
         slice_pos+=1;
     }
-    if(stat.printout )cout<<"4 slice_i : "<<i<<endl;
 
     /*  Doi with the leading-order quad and sext terms */
     GLB[H11001] = h11001/PI;
@@ -292,8 +266,6 @@ void computmdrivingTerms_nonperiod(vector<CppComponent*>& bline, vector<Multipol
         if(  (stat.combineddipole && DIPOLE==elem_kind) || QUADRUPOLE==elem_kind || SEXTUPOLE==elem_kind || OCTUPOLE==elem_kind) continue;
         memcpy(&bline[i]->tws(-1,LH11001),&bline[i-1]->tws(-1,LH11001), num_local_RDTs*__SIZEOF_DOUBLE__ );
     }
-    
-    if(stat.printout )cout<<"5 slice_i : "<<i<<endl;
 
     if(!(stat.leaderordertermonly)) {
         /*  compute sextupole contributions to second-order terms */

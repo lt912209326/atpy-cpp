@@ -46,7 +46,7 @@ cdef class Lexer:
         local = LOC_INDEX.keys()
         glbs = GLB_INDEX.keys()
 
-        funs = ["ABS", "MIN", "MAX", "SQRT", "DIM", "SIN",    "COS",    "SINH",   "COSH", "EXP"]
+        funs = ["ABS", "MIN", "MAX","MINABS", "MAXABS", "SQRT", "DIM", "SIN",    "COS",    "SINH",   "COSH", "EXP"]
         operators= ["+","-","*", "/", "//", "%", "**" ]
         bracket = ["(", ")" ]
         sign = [",","@","."]

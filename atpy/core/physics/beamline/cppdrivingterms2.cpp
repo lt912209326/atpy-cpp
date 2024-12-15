@@ -1,4 +1,4 @@
-#ifndef _CPPDRIVINGTERMS2_CPP_
+﻿#ifndef _CPPDRIVINGTERMS2_CPP_
 #define _CPPDRIVINGTERMS2_CPP_
 
 
@@ -13,19 +13,6 @@
 
 
 
-// int SIGN(double x){
-//     if (x==0){
-//         return 0;
-//     }
-//     else if(x>0)
-//     {
-//         return 1;
-//     }
-//     else
-//     {
-//         return -1;
-//     }
-// };
 
 // 只适合周期结构中对称右半部分、且仅仅dnux_dJx, dnux_nJy, dnuy_dJx完成，其他的还需继续
 
@@ -86,7 +73,7 @@ void computmdrivingTerms_nonperiod(vector<CppComponent*>& bline, vector<Multipol
     }
 
 
-    size_t comp_pos_index=-1, comp_pos=bline[mult_pos[0] ]->position, slice_pos=-1,nslice=bline[mult_pos[0] ]->elem->nslice, sext_slice_cnt=0 ;
+    int comp_pos_index=-1, comp_pos=bline[mult_pos[0] ]->position, slice_pos=-1,nslice=bline[mult_pos[0] ]->elem->nslice, sext_slice_cnt=0 ;
     for(size_t i=0;i<multipole_slice;i++)
     {
         if(!(slice_pos<nslice)|| comp_pos_index<0 ){
@@ -414,6 +401,7 @@ void computmdrivingTerms_nonperiod(vector<CppComponent*>& bline, vector<Multipol
     GLB[DNUY_DJY]=0.5*dnuy_dJy*nPeriods;
     }
 
+    if(stat.printout )cout<<"computmdrivingTerms_nonperiod finished"<<endl;
 }
 
 #endif

@@ -64,8 +64,6 @@ cdef class BeamLine:
             if self.pyline.expand[0].name !="START":
                 self.pyline.expand.insert(0,Marker("START") )
                 self.pyline.reverse.insert(0, False)
-                (<Element?>self.pyline.expand[0]).eids=[0]
-                self.elems_index["START"]=[0]
             length0=len(self.pyline.expand)-1
             self.lat=new CppBeamLine(name, self.stat.stat.particle, self.stat.stat.energy,length0,self.stat.stat)
             # self.elems_index["START"]=[0]
@@ -84,9 +82,6 @@ cdef class BeamLine:
         for index,value in enumerate(self.pyline.expand ):
             # 在CppBeamLine中有默认起始Marker元素 "START"
             position=index
-            if index==0: continue
-            # print(index," __cinit__:0",value.name)
-            # self.lat.append(value.elem ,self.pyline.reverse[index ] )
             if value.name not in self.elems_index.keys():
                 (<Element?>value).eids=[position]
                 self.elems_index[value.name] = [position ]
@@ -110,6 +105,7 @@ cdef class BeamLine:
         cdef size_t index,position
         cdef Parser parser=Parser(self.elems_index )
         for index,value in enumerate(self.pyline.expand ):
+            # 在CppBeamLine中有默认起始Marker元素 "START"
             if index==0: continue
             lat.append(value.elem ,self.pyline.reverse[index ] )
         parser._set_database(lat )
@@ -137,6 +133,9 @@ cdef class BeamLine:
     def set_parallel(self, int nkernel=-1):
         """
         set_parallel(self, Py_ssize_t nkernel=None)
+            set threads of parallel
+            params: 
+                nkernel: (default: -1, max_threads of machine )
         """
         cdef Py_ssize_t i,num_thread = openmp.omp_get_max_threads()
         
@@ -166,6 +165,10 @@ cdef class BeamLine:
             self.update_parser(self.parser_pool[i], self.parser)
 
     def update_parser(self,Parser parser1, Parser parser0):
+        """
+        update_parser(self,Parser parser1, Parser parser0)
+        update the parser1 from parser0, usually called internally.
+        """
         len0 = len(parser0.tokens)
         len1 = len(parser1.tokens)
         if len1>len0:
@@ -179,6 +182,10 @@ cdef class BeamLine:
 
 
     def set_worker(self,Py_ssize_t index=0):
+        """
+        set_worker(self,Py_ssize_t index=0)
+        change the default worker, index <= nkernel ,then the old default worker will stored to the index worker
+        """
         cdef:
             CppBeamLine* lat0 = self.lat 
             Parser parser0= self.parser
@@ -237,6 +244,9 @@ cdef class BeamLine:
     
     
     def _save(self):
+        """
+        internal funcction
+        """
         cdef:
             CppBeamLine* lat=NULL
             bytes name
@@ -247,6 +257,9 @@ cdef class BeamLine:
             lat.save((<Element?>self.pyline.elems[name.decode("utf8")]).elem )
     
     def save(self):
+        """
+        save the value of internal to the python objects
+        """
         self._save()
 
 
@@ -278,6 +291,7 @@ cdef class BeamLine:
             string name
             double value=0,summary=0,cell=0
             Constraints* pconstraint=&lat.constraints
+            double *tmp_ptr = NULL 
         # print("_update_constraints")
         computeRDTs = lat.stat.computedrivingterms
         lat.stat.computedrivingterms=False
@@ -307,6 +321,8 @@ cdef class BeamLine:
                 lat.compute_large_off_momentum_tunes(lat.stat.monitor_dp)
             if lat.constraints.time_consuming_terms[OFF_MOMENTUM_SUM_TERMS ] :
                 lat.compute_off_momentum_sum_square(lat.stat.monitor_dp)
+            if lat.constraints.time_consuming_terms[DA_TRACKING_TERMS ] :
+                lat.get_DA_area( tmp_ptr )
             #更新ID表和约束
             lat.TwissPropagate()
             for name in lat.id_table.id_table:
@@ -326,6 +342,7 @@ cdef class BeamLine:
             size_t i
             double value=0,summary=0
             Optima* poptima=&lat.optima
+            double *tmp_ptr = NULL 
         # print("_update_optima")
 
         computeRDTs = lat.stat.computedrivingterms
@@ -347,6 +364,8 @@ cdef class BeamLine:
                 lat.compute_large_off_momentum_tunes(lat.stat.monitor_dp)
             if poptima.time_consuming_terms[OFF_MOMENTUM_SUM_TERMS ] and not lat.constraints.time_consuming_terms[OFF_MOMENTUM_SUM_TERMS ] :
                 lat.compute_off_momentum_sum_square(lat.stat.monitor_dp)
+            if poptima.time_consuming_terms[DA_TRACKING_TERMS ] and not lat.constraints.time_consuming_terms[DA_TRACKING_TERMS ] :
+                lat.get_DA_area( tmp_ptr )
 
 
         for i in range(poptima.num_optima):
@@ -374,6 +393,14 @@ cdef class BeamLine:
 
 
     def evolution(self,double[:,:] variables, double[:,:] objectives, double[:,:] CV ):
+        """
+            evolution(self,double[:,:] variables, double[:,:] objectives, double[:,:] CV )
+                variables: MxN array corresponing to the VAR of parser 
+                objectives: MxL array corresponing to the CONSTRAINT of parser 
+                CV: MxP array corresponing to the OPTIMIZE of parser 
+            returns:
+                CV, objectives
+        """
         cdef:
             int i,j,i_cv_best,i_objv_best, num_variables= variables.shape[1], num_optima = objectives.shape[1], num_constraints=CV.shape[1], num_pop = variables.shape[0]
             double cv_tmp,value,objv_value
@@ -402,8 +429,15 @@ cdef class BeamLine:
     
 
     def __call__(self,double[:] X):
+        """
+        X: 1-d array of N elements corresponing to the VAR of parser 
+        return:
+            CV, objectives
+            CV: 1-d array of P elements corresponing to the OPTIMIZE of parser 
+            objectives: 1-d array L elements corresponing to the CONSTRAINT of parser 
+        """
         cdef:
-            int i,i_cv_best,i_objv_best, num_variables= X.shape[1]
+            int i,i_cv_best,i_objv_best, num_variables= X.shape[0]
             double cv_tmp,value,objv_value
             CppBeamLine* lat=NULL
         lat=self.lat
@@ -439,6 +473,10 @@ cdef class BeamLine:
         lat.TwissPropagate()
     
     def findclosedorbit(self, double dp):
+        """
+        dp: off-momentum Delta_p/p_0
+        find the closed orbit with 4-D track
+        """
         cdef double[::1] r=np.array([0,0,0,0,0,dp],dtype="float")
         self.lat.findClosedOrbit( &r[0] )
     
@@ -452,6 +490,11 @@ cdef class BeamLine:
         self.lat.compute_off_momentum_RDTs()
 
     def correctchrom(self, dQx=None, dQy=None):
+        """
+        correctchrom(self, dQx=None, dQy=None)
+        correct 1st order chromaticity to (dQx,dQy) use the knob set by CHROM in parser
+        if dQx, dQy is None, the chromaticity is corrected to the value set by AIM_DQX, AIM_DQY
+        """
         cdef:
             CppBeamLine* lat=self.lat
         if lat.chrom_corrector.iscorr1 or lat.chrom_corrector.iscorr2:
@@ -464,6 +507,17 @@ cdef class BeamLine:
 
     
     def compute_off_momentum_twiss(self, list dp_range, double dp_step=1e-4, bint local_twiss=True):
+        """
+        compute_off_momentum_twiss(self, list dp_range, double dp_step=1e-4, bint local_twiss=True)
+            dp_range: (min dp, max dp)
+            dp_step : the step of dp to compute the off-momentum twiss functions at the end of beamline
+            local_twiss : whether to calculate the  twiss functions of local elements
+        returns:
+            dps, twiss_mat
+            dps: 1-d array of N dp elements to calculate off-momentum twisses
+            twiss_mat: NxNUM_TWS array of the twisses function
+        """
+            
         cdef:
             CppBeamLine* lat=self.lat
             size_t i
@@ -488,8 +542,15 @@ cdef class BeamLine:
 
     def track(self, double[:,::1] beam0, int start_pos=0, int end_pos=-1, int nturn0=1,int nturn1=1):
         """
-            track(self, double[:,:] beam, start_pos=0, end_pos=-1, nturn0=1,nturn1=1):
-            return : N x [X ,PX ,Y ,PY ,Z ,DP ,LOSS ,   LOSSTURN    ,LOSSPOS   ]
+        track(self, double[:,::1] beam0, int start_pos=0, int end_pos=-1, int nturn0=1,int nturn1=1)
+            track(self, double[:,:] beam, start_pos=0, end_pos=-1, nturn0=1,nturn1=1)
+            beam: Nx7([X ,PX ,Y ,PY ,Z ,DP ,LOSS) array, loss is zero if particle is not lost
+            start_pos: int,the start element to track beams
+            end_pos: int, the end element to end the tracking
+            nturn0: int, the nturn0-th turn to start tracking
+            nturn1: int, the nturn1-th turn to end the tracking
+        return 
+            N x [X ,PX ,Y ,PY ,Z ,DP ,LOSS ,   LOSSTURN    ,LOSSPOS   ]
         """
         cdef:
             int nbegin, nend, nturn_begin, nturn_end, num_col=beam0.shape[1] , num_particles=beam0.shape[0]
@@ -560,6 +621,7 @@ cdef class BeamLine:
                 value=lat.id_table.id_dict[name].value
                 print(f"{index:<4}:{name.decode('utf8'):25}{value:>30.e6}")
             print(60*"=")
+        
         elif token=="VAR":
             num_indep_vars=lat.vars.num_independent_vars
             num_dep_vars=lat.vars.num_dependent_vars
@@ -569,7 +631,8 @@ cdef class BeamLine:
                 name=lat.vars.ordered_independ_var_names[index]
                 lb=(<Var*>lat.vars.independent_vars[name]).lb
                 ub=(<Var*>lat.vars.independent_vars[name]).ub
-                print(f"{index:<4}:{name.decode('utf8'):25}{lb:15.6}{ub:15.6}")
+                step=(<Var*>lat.vars.independent_vars[name]).step 
+                print(f"{index:<4}:NAME={name.decode('utf8'):25}, LOWER={lb:13.6}, UPPER={ub:13.6}, STEP={step:13.6};")
             for index in range(num_dep_vars):
                 name=lat.vars.ordered_depend_var_names[index]
                 print(f"{index+num_indep_vars:<4}:{name.decode('utf8'):36}{'CoVar':20}")
@@ -594,6 +657,12 @@ cdef class BeamLine:
 
 
     def export(self,str filename, str filetype="atpy"):
+        """
+        export(self,str filename, str filetype="atpy")
+            export the lattice to the form of other simulation programs ( some detail of the transformation may be not correct)
+            filename:  names of file to store the output lattice
+            filetype: str, one of the ["atpy","elegant", "opa","sad","madx"]
+        """
         cdef:
             CppBeamLine* lat=NULL
         lat=self.lat
@@ -688,7 +757,8 @@ cdef class BeamLine:
 
     def optics(self, start=0, stop=None,step=0.01,key=None,*,bint at_s=False):
         """
-
+        optics(self, start=0, stop=None,step=0.01,key=None,*,bint at_s=False)
+        return the twiss function at given steps, usually for ploting
         """
         cdef:
             double tmp_tws[TWS_NUM]
@@ -815,6 +885,10 @@ cdef class BeamLine:
         return res
 
     def get_DA_area(self):
+        """
+        get_DA_area
+        get DA bounds with the form numpy.array([x_list,y_list])
+        """        
         cdef double[:,::1] area_datas=np.zeros((2,self.lat.stat.track_lines) )
         self.lat.get_DA_area( &area_datas[0,0] )
         return np.array(area_datas.base )

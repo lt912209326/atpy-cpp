@@ -1,4 +1,4 @@
-﻿#ifndef _CPPPARSER_H_
+#ifndef _CPPPARSER_H_
 #define _CPPPARSER_H_
 
 #include "cppcomponent.h"
@@ -8,7 +8,7 @@ enum{
     ADD,    SUB,    MUL,    DIV,    POW,    MOD,    FLOOR,
     ABS,       SQRT,        SIN,    COS,    SINH,   COSH, 
     EXP,       
-    DIM,       MAX,       MIN,
+    DIM,       MAX,       MIN,       MAXABS,       MINABS, SUM,
     NUMBER,    PROPERTY,    ID,     REFER,
     DOT,       COMMA,
     DELAY,   ASSIGN,      
@@ -470,6 +470,18 @@ class RangeFunction:public AST{
                 value0=fmax(it[0],value0);
             }
         }
+        else if(token==MINABS){
+            value0=1e40;
+            for(auto it : database){
+                value0=fmin(abs(it[0]),value0);
+            }
+        }
+        else if(token==MAXABS){
+            value0=-1e40;
+            for(auto it : database){
+                value0=fmax(abs(it[0]),value0);
+            }
+        }
         value=value0;
         return value;
     }
@@ -484,6 +496,9 @@ class RangeFunction:public AST{
         }
     }
 };
+
+
+
 
 
 #endif

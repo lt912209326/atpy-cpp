@@ -161,7 +161,7 @@ int CppOctupole::_drift_track(double* rin, const double len,const Status* stat){
     double pnorm=1/(1+rin[5]);
     rin[0]=rin[0]+len*rin[1]*pnorm;
     rin[2]=rin[2]+len*rin[3]*pnorm;
-    rin[4]+=len*pnorm*0.5*(rin[1]*rin[1]+rin[3]*rin[3]);
+    rin[4]-=len*pnorm*0.5*(rin[1]*rin[1]+rin[3]*rin[3]);
     return 0;
 }
 

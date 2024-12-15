@@ -1141,15 +1141,6 @@ int CppBeamLine::compute_off_momentum_twiss(double* tws, double dp, bool local_t
     tws1[TWSMODE]=1;
     // memcpy(tws0, &line[length]->tws[0], TWS_NUM*__SIZEOF_DOUBLE__ );
 
-
-    // if(stat.period){
-    //     tws0[NUX]=(line[length]->local[R12]>0? acos(0.5*stat.Trx):PIx2-acos(0.5*stat.Trx) )/PIx2;
-    //     tws0[NUY]=(line[length]->local[R34]>0? acos(0.5*stat.Try):PIx2-acos(0.5*stat.Try) )/PIx2;
-    // }
-    // else{
-    //     tws0[NUX]= fmod( line[length]->tws(-1,NUX), 1.0);
-    //     tws0[NUY]= fmod( line[length]->tws(-1,NUY), 1.0);
-    // }
     // must recovery at the end
     fill(line[0]->local+CODX,line[0]->local+CODDP+1,0);
 
@@ -1316,19 +1307,6 @@ int CppBeamLine::compute_off_momentum_sum_square(double dp){
         prev_nux = tws1[NUX];
         prev_nuy = tws1[NUY];
         
-        // if(tws1[NUX]>1e8 && tws1[NUY]>1e8 ) break;
-        // if(tws1[NUX]<nux_bounds[0] || tws1[NUX]>nux_bounds[1]  ) {
-        //     sum_sqr_qx+= tws1[NUX]>9.99e5 ? tws1[NUX] : 1e4*dprange[iloop]*sqr(tws1[NUX]-int_nux0) ;
-        // }
-        // else{
-        //     sum_sqr_qx+=dprange[iloop]*sqr(tws1[NUX]-int_nux0) ;
-        // }
-        // if(tws1[NUY]<nuy_bounds[0] || tws1[NUY]>nuy_bounds[1] ) {
-        //     sum_sqr_qy+= tws1[NUY]>9.99e5 ? tws1[NUY] : 1e4*dprange[iloop]*sqr(tws1[NUY]-int_nuy0) ;
-        // }
-        // else{
-        //     sum_sqr_qy+=dprange[iloop]*sqr(tws1[NUY]-int_nuy0) ;
-        // }
         cnt+=dprange[iloop];
         if(stat.printout){
             cout<<"compute_off_momentum_sum_square::nux: "<<tws1[NUX]<<", nuy: "<<tws1[NUY]<<endl;
@@ -1460,10 +1438,6 @@ int CppBeamLine::compute_theory_touscheklifetime_part(){
         
         zetai = sqr(delta_p_accept)/sqr(gamma*sigma_xpi );
         
-        // if(stat.printout ){
-        //     cout<<"delta_p: "<<delta_p_accept<<endl;
-        //     cout<<"zeta: "<<zetai<<endl;
-        // }
         inv_tau += touschekF(zetai )/(sigma_xi*sigma_yi*sigma_xpi*sqr(delta_p_accept) )*line[iloop]->elem->values.at(L) ;
     }
 
@@ -1499,14 +1473,6 @@ int CppBeamLine::computeSecondOrderChromaticities(const double dp){
     memcpy(OneTurnTransferMatrixCache, &line[ref_pt]->local[R11], 36*__SIZEOF_DOUBLE__ );
     memcpy(tws1, &line[0]->tws[0], TWS_NUM*__SIZEOF_DOUBLE__ );
     
-    // if(stat.period){
-    //     nux[2]=(line[ref_pt]->local[R12]>0? acos(0.5*stat.Trx):PIx2-acos(0.5*stat.Trx) )/PIx2;
-    //     nuy[2]=(line[ref_pt]->local[R34]>0? acos(0.5*stat.Try):PIx2-acos(0.5*stat.Try) )/PIx2;
-    // }
-    // else{
-    //     nux[2]= fmod( line[ref_pt]->tws(-1,NUX), 1.0);
-    //     nuy[2]= fmod( line[ref_pt]->tws(-1,NUY), 1.0);
-    // }
     
     nux[2]= line[ref_pt]->tws(-1,NUX);
     nuy[2]= line[ref_pt]->tws(-1,NUY);
@@ -1601,9 +1567,6 @@ int CppBeamLine::computeSecondOrderChromaticities(const double dp){
     globals[DBETAY]=(betay[3] - betay[1])/dp ;
     globals[DALPHAX]=(alphax[3] - alphax[1])/dp ;
     globals[DALPHAY]=(alphay[3] - alphay[1])/dp ;
-    globals[DDBETAX]=(betax[1]+betax[3]-2*betax[2])/(2*dp*dp);
-    globals[DDBETAY]=(betay[1]+betay[3]-2*betay[2])/(2*dp*dp);
-    globals[DDETAX]=(etax[1]+etax[3]-2*etax[2])/(2*dp*dp);
     
     double A1X,B1X, A1Y,B1Y;
     A1X= globals[DALPHAX]- alphax[2]*globals[DBETAX]/betax[2] ;
@@ -1638,8 +1601,6 @@ int CppBeamLine::computeSecondOrderChromaticities(const double dp){
 
 }
 
-
-
 int CppBeamLine::track(double* beams, size_t nbegin, size_t nend, size_t nturn_begin, size_t nturn_end ){
     size_t nturn0=nturn_begin, nturn1=nturn_end;
     size_t stat_no=0, first_end_pos=length;
@@ -1669,7 +1630,10 @@ int CppBeamLine::track(double* beams, size_t nbegin, size_t nend, size_t nturn_b
         }
         for(j=nbegin;j<first_end_pos+1;j++){
             line[j]->track(beams,&stat);
-            if(beams[LOSS]) break;
+            if(beams[LOSS]){
+                beams[LOSSPOS] = j;
+                break;
+            }
         }
         if(beams[LOSS]){
             beams[LOSSTURN]=nturn_begin;
@@ -1687,6 +1651,7 @@ int CppBeamLine::track(double* beams, size_t nbegin, size_t nend, size_t nturn_b
                 else{
                     beams[LOSSTURN]=k;
                 }
+                beams[LOSSPOS] = j;
                 return 0;
             }
         }
@@ -1702,6 +1667,7 @@ int CppBeamLine::track(double* beams, size_t nbegin, size_t nend, size_t nturn_b
                 line[j]->track(beams,&stat);
                 if(beams[LOSS]){
                     beams[LOSSTURN]=nturn_end;
+                    beams[LOSSPOS] = j;
                     return 0;
                 }
             }
@@ -1710,6 +1676,7 @@ int CppBeamLine::track(double* beams, size_t nbegin, size_t nend, size_t nturn_b
             break;
     }
     beams[LOSSTURN]=nturn_end+1;
+    beams[LOSSPOS] = -1;
     return 0;
 }
 
@@ -1717,6 +1684,7 @@ double CppBeamLine::get_DA_area(double* area_datas){
     
     size_t npara=stat.npara, max_machine_thread=1;
     double s=0;
+    double c_area_datas[100][2]={0};
     int alive_cnt[100]={0}; // maximum track lines is 100
     size_t nline=stat.track_lines, n_step=nline-1, track_turns=stat.track_turns; //
     matrix<double> beams(nline,TRK_NUM,0); //
@@ -1792,21 +1760,26 @@ double CppBeamLine::get_DA_area(double* area_datas){
         }
     }
     double normal_area=0, sigma_r=0, ave_r=0, sum_r2_i=0;
-    double r=0, r_prev=0, r_next=0, r_local_max=0;
+    double r=0, r_prev=0, r_next=0, r_local_max=0, r_min=1e10;
+    
     for(i=0;i<nline;i++){
         r=max_radiuses[i];
+        r_min = fmin(r_min, r);
         ave_r+=r;
         sum_r2_i+=r*r;
         if(i>0){
             normal_area+=0.5*sin(PI/n_step)*max_radiuses[i]*max_radiuses[i-1];
         }
-        area_datas[i]= r*cos(i*PI/n_step)*sigmax+ xo_begin ;
-        area_datas[nline+i]= r*sin(i*PI/n_step)*sigmay+ytol ;
+        if(area_datas != nullptr ){
+            area_datas[i]= r*cos(i*PI/n_step)*sigmax+ xo_begin ;
+            area_datas[nline+i]= r*sin(i*PI/n_step)*sigmay+ytol ;
+        }
     }
     ave_r/=nline;
     sigma_r=sqrt(sum_r2_i/nline - ave_r*ave_r);
     // normal_area-=0.5*n_step*PI/nline*sigma_r*sigma_r;
-    globals[DA]=normal_area;
+    // globals[DA]=normal_area;
+    globals[DA]=r_min*r_min;
     globals[DA_SIGMA]=sigma_r;
     return normal_area;
 }
